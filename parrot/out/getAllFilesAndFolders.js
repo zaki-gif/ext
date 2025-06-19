@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import ignore from 'ignore';
+import { isText } from 'istextorbinary';
+import { Buffer } from 'buffer';
 let workspaceData;
 function splitBufferToStringChunks(buffer, maxChunkSizeMB = 200) {
     const maxBytes = maxChunkSizeMB * 1024 * 1024; // Convert MB to bytes
@@ -59,16 +61,23 @@ export const getAllFilesAndFolders = async () => {
             if (type === vscode.FileType.File) {
                 const fileURI = vscode.Uri.joinPath(selectedDirectoryURI, name);
                 const fileContentsBuffer = await vscode.workspace.fs.readFile(fileURI);
-                const fileContentsText = fileContentsBuffer.toString();
-                const chunkSize = 1_000_000;
-                let offset = 0;
-                let arr = [];
-                while (offset < fileContentsBuffer.length) {
-                    const chunk = fileContentsBuffer.slice(offset, offset + chunkSize);
-                    arr.push(chunk.toString());
-                    offset = offset + chunkSize;
+                if (isText(undefined, Buffer.from(fileContentsBuffer))) {
+                    const chunkSize = 1_000_000;
+                    let offset = 0;
+                    let arr = [];
+                    while (offset < fileContentsBuffer.length) {
+                        const chunk = fileContentsBuffer.slice(offset, offset + chunkSize);
+                        arr.push(Buffer.from(chunk).toString('utf-8'));
+                        offset += chunkSize;
+                    }
+                    workspaceArray.push({ [name]: arr, type: 'file', encoding: 'utf-8' });
                 }
-                workspaceArray.push({ [name]: arr, type: 'file' });
+                else {
+                    const buffer = Buffer.from(fileContentsBuffer);
+                    let content = buffer.toString('base64');
+                    let encoding = 'base64';
+                    workspaceArray.push({ [name]: content, type: 'file', encoding });
+                }
             }
             else if (type === vscode.FileType.Directory) {
                 const directoryURI = vscode.Uri.joinPath(selectedDirectoryURI, name);

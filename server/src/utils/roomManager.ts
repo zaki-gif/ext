@@ -1,5 +1,5 @@
 export type RoomData = {
-    workspaceData: number[][],
+    workspaceData: number[][] | null,
     users: Array<string>
 };
 

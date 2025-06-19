@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import ignore from 'ignore';
+import { isText } from 'istextorbinary';
+import { Buffer } from 'buffer';
 
 let workspaceData: any;
 
@@ -83,24 +85,30 @@ export const getAllFilesAndFolders = async () => {
 			if (type === vscode.FileType.File) {
 				const fileURI = vscode.Uri.joinPath(selectedDirectoryURI, name);
 				const fileContentsBuffer = await vscode.workspace.fs.readFile(fileURI);
-				const fileContentsText = fileContentsBuffer.toString();
 
-				const chunkSize = 1_000_000;
-				let offset = 0;
+				if (isText(undefined, Buffer.from(fileContentsBuffer))) {
+					const chunkSize = 1_000_000;
+					let offset = 0;
 
-				let arr: string[] = [];
+					let arr: string[] = [];
 
-				while(offset < fileContentsBuffer.length){
-					const chunk = fileContentsBuffer.slice(offset, offset+chunkSize);
-					arr.push(chunk.toString());
-					offset = offset + chunkSize;
+					while (offset < fileContentsBuffer.length) {
+						const chunk = fileContentsBuffer.slice(offset, offset + chunkSize);
+						arr.push(Buffer.from(chunk).toString('utf-8'));
+						offset += chunkSize;
+					}
+
+					workspaceArray.push({ [name]: arr, type: 'file', encoding: 'utf-8' });
+				} else {
+					const buffer = Buffer.from(fileContentsBuffer);
+					let content = buffer.toString('base64');
+					let encoding = 'base64';
+					workspaceArray.push({[name]: content, type: 'file', encoding});
 				}
-
-				workspaceArray.push({[name]:  arr, type: 'file'});
 			} else if (type === vscode.FileType.Directory) {
 				const directoryURI = vscode.Uri.joinPath(selectedDirectoryURI, name);
 				const newDir: any = [];
-				workspaceArray.push({ [name]: newDir, type:'directory' });
+				workspaceArray.push({ [name]: newDir, type: 'directory' });
 				await readDirectoryAndLoadData(directoryURI, name, newDir);
 			}
 		}

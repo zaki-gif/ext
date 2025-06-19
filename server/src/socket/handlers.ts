@@ -1,16 +1,18 @@
 import { Server, Socket } from 'socket.io';
-import { createUniqueRoomCode, activeRooms, activeUsers, UserData } from '../utils/roomManager';
+import { createUniqueRoomCode, activeRooms, activeUsers } from '../utils/roomManager';
+import { encode, decode } from '@msgpack/msgpack';
 
 export function handleSocketConnection(socket: Socket, io: Server) {
     socket.on('Create a room', () => {
-        let givenRoomWorkSpaceData: number[][] = [];
+        let givenRoomWorkSpaceData: number[][] | null = [];
         const roomCode = createUniqueRoomCode(socket.id);
 
         socket.join(roomCode);
         socket.emit('room created', roomCode);
 
         socket.on('sending workspace data', ({ index, chunk }: { index: number, chunk: Array<number> }) => {
-            givenRoomWorkSpaceData[index] = chunk;
+            if (givenRoomWorkSpaceData)
+                givenRoomWorkSpaceData[index] = chunk;
         });
 
         socket.on('workspace data sent', () => {
@@ -25,7 +27,36 @@ export function handleSocketConnection(socket: Socket, io: Server) {
             room.workspaceData = givenRoomWorkSpaceData;
 
             console.log('workspace data saved');
+            givenRoomWorkSpaceData = null;
         });
+    });
+
+    socket.on('Join a room', (roomCode) => {
+        if (!activeRooms.has(roomCode)) {
+            console.log('This room isnt active');
+        }
+        activeUsers.set(socket.id, {
+            roomCode,
+            host: false
+        });
+
+        const roomData = activeRooms.get(roomCode);
+        roomData?.users.push(socket.id);
+        socket.join(roomCode);
+
+        socket.emit('joined room');
+
+        const encodedRoomData = encode(roomData);
+        const chunkSize = 250_000;
+        for (let i = 0, index = 0; i < encodedRoomData.length; i += chunkSize, index++) {
+            const chunk = encodedRoomData.slice(i, i + chunkSize);
+            socket?.emit('sending workspace data', { index, chunk: Array.from(chunk) });
+            console.log(`data sent`, Array.from(chunk));
+        }
+
+        socket?.emit('workspace data sent');
+
+
     });
 
     socket.on('disconnect', () => {
