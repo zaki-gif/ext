@@ -31,7 +31,7 @@ export function handleSocketConnection(socket: Socket, io: Server) {
         });
     });
 
-    socket.on('Join a room', (roomCode) => {
+    socket.on('Join a room', (roomCode: string) => {
         if (!activeRooms.has(roomCode)) {
             console.log('This room isnt active');
         }

@@ -5,24 +5,6 @@ import { Buffer } from 'buffer';
 
 let workspaceData: any;
 
-function splitBufferToStringChunks(buffer: Uint8Array, maxChunkSizeMB = 200): string[] {
-    const maxBytes = maxChunkSizeMB * 1024 * 1024; // Convert MB to bytes
-    const chunks: string[] = [];
-
-    let offset = 0;
-
-    while (offset < buffer.length) {
-        // Slice a chunk of buffer
-        const end = Math.min(offset + maxBytes, buffer.length);
-        const chunk = buffer.slice(offset, end);
-        // Convert chunk to string (assumes UTF-8)
-        chunks.push(Buffer.from(chunk).toString('utf-8'));
-        offset = end;
-    }
-
-    return chunks;
-}
-
 
 export const getAllFilesAndFolders = async () => {
 	const ig = ignore();
