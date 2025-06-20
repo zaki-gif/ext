@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io-client';
-import { getAllFilesAndFolders, workspaceData } from '../getAllFilesAndFolders.js';
+import { getAllFilesAndFolders, workspaceData } from '../utils/getAllFilesAndFolders.js';
 import { encode, decode } from '@msgpack/msgpack';
 
 export type RoomData = {

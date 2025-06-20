@@ -1,4 +1,4 @@
-import { getAllFilesAndFolders, workspaceData } from '../getAllFilesAndFolders.js';
+import { getAllFilesAndFolders, workspaceData } from '../utils/getAllFilesAndFolders.js';
 import { encode, decode } from '@msgpack/msgpack';
 export const createARoom = (socket, selected) => {
     socket?.emit(selected);
