@@ -2,7 +2,13 @@ import * as vscode from 'vscode';
 import { io, Socket } from 'socket.io-client';
 import { getAllFilesAndFolders, workspaceData } from './getAllFilesAndFolders.js';
 import { encode, decode } from '@msgpack/msgpack';
-import { RoomData } from './utils/types.js';
+
+
+export type RoomData = {
+	workspaceData: number[][] | null,
+	users: Array<string>
+} | null;
+
 
 let socket: Socket | null = null;
 const SERVER_URL = `http://localhost:8000`;
