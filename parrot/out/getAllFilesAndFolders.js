@@ -3,20 +3,6 @@ import ignore from 'ignore';
 import { isText } from 'istextorbinary';
 import { Buffer } from 'buffer';
 let workspaceData;
-function splitBufferToStringChunks(buffer, maxChunkSizeMB = 200) {
-    const maxBytes = maxChunkSizeMB * 1024 * 1024; // Convert MB to bytes
-    const chunks = [];
-    let offset = 0;
-    while (offset < buffer.length) {
-        // Slice a chunk of buffer
-        const end = Math.min(offset + maxBytes, buffer.length);
-        const chunk = buffer.slice(offset, end);
-        // Convert chunk to string (assumes UTF-8)
-        chunks.push(Buffer.from(chunk).toString('utf-8'));
-        offset = end;
-    }
-    return chunks;
-}
 export const getAllFilesAndFolders = async () => {
     const ig = ignore();
     const workspaces = vscode.workspace.workspaceFolders;
