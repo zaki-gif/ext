@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 import { io, Socket } from 'socket.io-client';
-import { getAllFilesAndFolders, workspaceData } from './utils/getAllFilesAndFolders.js';
-import { encode, decode } from '@msgpack/msgpack';
 import { socketHandler } from './sockets/index.js';
 
 
