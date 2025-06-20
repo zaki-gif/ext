@@ -25,7 +25,6 @@ export const getAllFilesAndFolders = async () => {
         console.log('Invalid workspace selection', selectedWorkspace, selectedWorkspaceURI, selectedWorkspaceName);
         return;
     }
-    // Try reading .gitignore
     try {
         const gitignoreURI = vscode.Uri.joinPath(selectedWorkspaceURI, '.gitignore');
         const gitignoreContent = await vscode.workspace.fs.readFile(gitignoreURI);
@@ -35,7 +34,6 @@ export const getAllFilesAndFolders = async () => {
     catch (err) {
         console.log('.gitignore not found or failed to read');
     }
-    // Properly assign the global variable
     workspaceData = { [selectedWorkspaceName]: [], type: 'workspace' };
     const readDirectoryAndLoadData = async (selectedDirectoryURI, selectedDirectoryName, workspaceArray) => {
         const directoryContents = await vscode.workspace.fs.readDirectory(selectedDirectoryURI);
