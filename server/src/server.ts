@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { setupSocket } from './socket';
 import dotenv from 'dotenv';
 
-const app = express();
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
